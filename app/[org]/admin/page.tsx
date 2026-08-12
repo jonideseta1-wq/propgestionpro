@@ -1,5 +1,6 @@
 import { supabaseServer } from "@/lib/supabase";
 import { getOrgBySubdomain } from "@/lib/getOrg";
+import { redirect } from "next/navigation";
 
 function money(n: number) {
   return n.toLocaleString("es-AR", { style: "currency", currency: "ARS", maximumFractionDigits: 0 });
@@ -11,6 +12,14 @@ export default async function AdminPage({ params }: { params: Promise<{ org: str
   if (!org) return <p>Organización no encontrada.</p>;
 
   const supabase = await supabaseServer();
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    redirect(`/${subdomain}/login`);
+  }
 
   // Gracias a RLS, esto solo trae datos de la org del admin autenticado
   const { data: properties } = await supabase
