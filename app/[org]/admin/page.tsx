@@ -1,5 +1,4 @@
-import { supabaseServer } from "@/lib/supabase";
-import { getOrgBySubdomain } from "@/lib/getOrg";
+import { supabaseServer } from "@/lib/supabaseServer";import { getOrgBySubdomain } from "@/lib/getOrg";
 import { redirect } from "next/navigation";
 
 function money(n: number) {
