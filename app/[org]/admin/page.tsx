@@ -83,7 +83,7 @@ export default async function AdminPage({ params }: { params: Promise<{ org: str
         action={addProperty}
         style={{
           display: "flex",
-          flexWrap: "wrap",
+          flexDirection: "column",
           gap: 8,
           marginBottom: 24,
           background: "#fff",
@@ -97,18 +97,18 @@ export default async function AdminPage({ params }: { params: Promise<{ org: str
           name="address"
           placeholder="Dirección"
           required
-          style={{ flex: "1 1 140px", minWidth: 0, padding: "8px 10px", border: "1px solid #E4DFD3", borderRadius: 6, fontSize: 13 }}
+          style={{ width: "100%", boxSizing: "border-box", padding: "8px 10px", border: "1px solid #E4DFD3", borderRadius: 6, fontSize: 13 }}
         />
         <input
           name="unit"
           placeholder="Unidad (opcional)"
-          style={{ flex: "1 1 100px", minWidth: 0, padding: "8px 10px", border: "1px solid #E4DFD3", borderRadius: 6, fontSize: 13 }}
+          style={{ width: "100%", boxSizing: "border-box", padding: "8px 10px", border: "1px solid #E4DFD3", borderRadius: 6, fontSize: 13 }}
         />
         <button
           type="submit"
-          style={{ flex: "0 0 auto", background: "var(--org-ink)", color: "#fff", border: "none", borderRadius: 6, padding: "8px 14px", fontSize: 13, cursor: "pointer" }}
+          style={{ width: "100%", background: "var(--org-ink)", color: "#fff", border: "none", borderRadius: 6, padding: "10px 14px", fontSize: 13, fontWeight: 700, cursor: "pointer" }}
         >
-          Agregar
+          Agregar propiedad
         </button>
       </form>
 
@@ -140,7 +140,7 @@ export default async function AdminPage({ params }: { params: Promise<{ org: str
         action={addCharge}
         style={{
           display: "flex",
-          flexWrap: "wrap",
+          flexDirection: "column",
           gap: 8,
           marginTop: 12,
           background: "#fff",
@@ -154,21 +154,23 @@ export default async function AdminPage({ params }: { params: Promise<{ org: str
           name="concept"
           placeholder="Concepto (ej. Interés por mora)"
           required
-          style={{ flex: "1 1 160px", minWidth: 0, padding: "8px 10px", border: "1px solid #E4DFD3", borderRadius: 6, fontSize: 13 }}
+          style={{ width: "100%", boxSizing: "border-box", padding: "8px 10px", border: "1px solid #E4DFD3", borderRadius: 6, fontSize: 13 }}
         />
         <input
           name="amount"
           type="number"
+          inputMode="decimal"
           step="0.01"
-          placeholder="Monto"
+          min="0"
+          placeholder="Monto (ej. 15000)"
           required
-          style={{ flex: "1 1 90px", minWidth: 0, padding: "8px 10px", border: "1px solid #E4DFD3", borderRadius: 6, fontSize: 13 }}
+          style={{ width: "100%", boxSizing: "border-box", padding: "8px 10px", border: "1px solid #E4DFD3", borderRadius: 6, fontSize: 13 }}
         />
         <button
           type="submit"
-          style={{ flex: "0 0 auto", background: "var(--org-ink)", color: "#fff", border: "none", borderRadius: 6, padding: "8px 14px", fontSize: 13, cursor: "pointer" }}
+          style={{ width: "100%", background: "var(--org-ink)", color: "#fff", border: "none", borderRadius: 6, padding: "10px 14px", fontSize: 13, fontWeight: 700, cursor: "pointer" }}
         >
-          Agregar
+          Agregar cargo
         </button>
       </form>
     </div>
