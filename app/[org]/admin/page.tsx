@@ -1,5 +1,7 @@
-import { supabaseServer } from "@/lib/supabaseServer";import { getOrgBySubdomain } from "@/lib/getOrg";
+import { supabaseServer } from "@/lib/supabaseServer";
+import { getOrgBySubdomain } from "@/lib/getOrg";
 import { redirect } from "next/navigation";
+import { logout, addProperty, addCharge } from "./actions";
 
 function money(n: number) {
   return n.toLocaleString("es-AR", { style: "currency", currency: "ARS", maximumFractionDigits: 0 });
@@ -34,6 +36,26 @@ export default async function AdminPage({ params }: { params: Promise<{ org: str
 
   return (
     <div style={{ maxWidth: 480, margin: "0 auto" }}>
+      <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: 12 }}>
+        <form action={logout}>
+          <input type="hidden" name="subdomain" value={subdomain} />
+          <button
+            type="submit"
+            style={{
+              background: "none",
+              border: "1px solid #E4DFD3",
+              borderRadius: 6,
+              padding: "6px 12px",
+              fontSize: 12,
+              color: "#5B6259",
+              cursor: "pointer",
+            }}
+          >
+            Cerrar sesión
+          </button>
+        </form>
+      </div>
+
       <h2 style={{ fontFamily: "var(--org-font)", color: "var(--org-ink)" }}>Propiedades</h2>
       <div style={{ background: "#fff", borderRadius: "var(--org-radius)", border: "1px solid #E4DFD3", overflow: "hidden", marginBottom: 24 }}>
         {(properties ?? []).map((p, i) => (
@@ -56,6 +78,38 @@ export default async function AdminPage({ params }: { params: Promise<{ org: str
           </div>
         ))}
       </div>
+
+      <form
+        action={addProperty}
+        style={{
+          display: "flex",
+          gap: 8,
+          marginBottom: 24,
+          background: "#fff",
+          border: "1px solid #E4DFD3",
+          borderRadius: "var(--org-radius)",
+          padding: 12,
+        }}
+      >
+        <input type="hidden" name="subdomain" value={subdomain} />
+        <input
+          name="address"
+          placeholder="Dirección"
+          required
+          style={{ flex: 2, padding: "8px 10px", border: "1px solid #E4DFD3", borderRadius: 6, fontSize: 13 }}
+        />
+        <input
+          name="unit"
+          placeholder="Unidad (opcional)"
+          style={{ flex: 1, padding: "8px 10px", border: "1px solid #E4DFD3", borderRadius: 6, fontSize: 13 }}
+        />
+        <button
+          type="submit"
+          style={{ background: "var(--org-ink)", color: "#fff", border: "none", borderRadius: 6, padding: "8px 14px", fontSize: 13, cursor: "pointer" }}
+        >
+          Agregar
+        </button>
+      </form>
 
       <h2 style={{ fontFamily: "var(--org-font)", color: "var(--org-ink)" }}>Cargos especiales</h2>
       <div style={{ background: "#fff", borderRadius: "var(--org-radius)", border: "1px solid #E4DFD3", overflow: "hidden" }}>
@@ -80,6 +134,41 @@ export default async function AdminPage({ params }: { params: Promise<{ org: str
           </div>
         ))}
       </div>
+
+      <form
+        action={addCharge}
+        style={{
+          display: "flex",
+          gap: 8,
+          marginTop: 12,
+          background: "#fff",
+          border: "1px solid #E4DFD3",
+          borderRadius: "var(--org-radius)",
+          padding: 12,
+        }}
+      >
+        <input type="hidden" name="subdomain" value={subdomain} />
+        <input
+          name="concept"
+          placeholder="Concepto (ej. Interés por mora)"
+          required
+          style={{ flex: 2, padding: "8px 10px", border: "1px solid #E4DFD3", borderRadius: 6, fontSize: 13 }}
+        />
+        <input
+          name="amount"
+          type="number"
+          step="0.01"
+          placeholder="Monto"
+          required
+          style={{ flex: 1, padding: "8px 10px", border: "1px solid #E4DFD3", borderRadius: 6, fontSize: 13 }}
+        />
+        <button
+          type="submit"
+          style={{ background: "var(--org-ink)", color: "#fff", border: "none", borderRadius: 6, padding: "8px 14px", fontSize: 13, cursor: "pointer" }}
+        >
+          Agregar
+        </button>
+      </form>
     </div>
   );
 }
