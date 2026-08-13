@@ -83,6 +83,7 @@ export default async function AdminPage({ params }: { params: Promise<{ org: str
         action={addProperty}
         style={{
           display: "flex",
+          flexWrap: "wrap",
           gap: 8,
           marginBottom: 24,
           background: "#fff",
@@ -96,16 +97,16 @@ export default async function AdminPage({ params }: { params: Promise<{ org: str
           name="address"
           placeholder="Dirección"
           required
-          style={{ flex: 2, padding: "8px 10px", border: "1px solid #E4DFD3", borderRadius: 6, fontSize: 13 }}
+          style={{ flex: "1 1 140px", minWidth: 0, padding: "8px 10px", border: "1px solid #E4DFD3", borderRadius: 6, fontSize: 13 }}
         />
         <input
           name="unit"
           placeholder="Unidad (opcional)"
-          style={{ flex: 1, padding: "8px 10px", border: "1px solid #E4DFD3", borderRadius: 6, fontSize: 13 }}
+          style={{ flex: "1 1 100px", minWidth: 0, padding: "8px 10px", border: "1px solid #E4DFD3", borderRadius: 6, fontSize: 13 }}
         />
         <button
           type="submit"
-          style={{ background: "var(--org-ink)", color: "#fff", border: "none", borderRadius: 6, padding: "8px 14px", fontSize: 13, cursor: "pointer" }}
+          style={{ flex: "0 0 auto", background: "var(--org-ink)", color: "#fff", border: "none", borderRadius: 6, padding: "8px 14px", fontSize: 13, cursor: "pointer" }}
         >
           Agregar
         </button>
@@ -125,50 +126,4 @@ export default async function AdminPage({ params }: { params: Promise<{ org: str
           >
             <div>
               <div style={{ fontWeight: 600, color: "var(--org-ink)" }}>{c.concept}</div>
-              <div style={{ fontSize: 12, color: "#5B6259" }}>{c.tenants?.name}</div>
-            </div>
-            <div style={{ textAlign: "right" }}>
-              <div>{money(Number(c.amount))}</div>
-              <div style={{ fontSize: 11, color: "#5B6259" }}>{c.status}</div>
-            </div>
-          </div>
-        ))}
-      </div>
-
-      <form
-        action={addCharge}
-        style={{
-          display: "flex",
-          gap: 8,
-          marginTop: 12,
-          background: "#fff",
-          border: "1px solid #E4DFD3",
-          borderRadius: "var(--org-radius)",
-          padding: 12,
-        }}
-      >
-        <input type="hidden" name="subdomain" value={subdomain} />
-        <input
-          name="concept"
-          placeholder="Concepto (ej. Interés por mora)"
-          required
-          style={{ flex: 2, padding: "8px 10px", border: "1px solid #E4DFD3", borderRadius: 6, fontSize: 13 }}
-        />
-        <input
-          name="amount"
-          type="number"
-          step="0.01"
-          placeholder="Monto"
-          required
-          style={{ flex: 1, padding: "8px 10px", border: "1px solid #E4DFD3", borderRadius: 6, fontSize: 13 }}
-        />
-        <button
-          type="submit"
-          style={{ background: "var(--org-ink)", color: "#fff", border: "none", borderRadius: 6, padding: "8px 14px", fontSize: 13, cursor: "pointer" }}
-        >
-          Agregar
-        </button>
-      </form>
-    </div>
-  );
-}
+              <div style={{ fontSize: 12, color: "#5B6259"
