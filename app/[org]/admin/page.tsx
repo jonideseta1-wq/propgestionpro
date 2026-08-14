@@ -83,7 +83,15 @@ export default async function AdminPage({ params }: { params: Promise<{ org: str
 
   return (
     <div style={{ maxWidth: 680, margin: "0 auto", paddingTop: 4 }}>
-      <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: 18 }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginBottom: 22, flexWrap: "wrap", gap: 10 }}>
+        <div>
+          <div style={{ fontFamily: "var(--org-font)", fontSize: 22, color: "var(--org-ink)", fontWeight: isLedger ? 400 : 800 }}>
+            Panel de administración
+          </div>
+          <div style={{ fontSize: 12.5, color: "#5B6259", marginTop: 2 }}>
+            Gestioná tus propiedades e inquilinos
+          </div>
+        </div>
         <form action={logout}>
           <input type="hidden" name="subdomain" value={subdomain} />
           <button
