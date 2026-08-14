@@ -1,7 +1,7 @@
 import { supabaseServer } from "@/lib/supabaseServer";
 import { getOrgBySubdomain } from "@/lib/getOrg";
 import { redirect } from "next/navigation";
-import { logout, addProperty, addCharge } from "./actions";
+import { logout, addProperty, updateProperty, deleteProperty, addCharge, updateCharge, deleteCharge } from "./actions";
 
 function money(n: number) {
   return n.toLocaleString("es-AR", { style: "currency", currency: "ARS", maximumFractionDigits: 0 });
@@ -22,7 +22,6 @@ export default async function AdminPage({ params }: { params: Promise<{ org: str
     redirect(`/${subdomain}/login`);
   }
 
-  // Gracias a RLS, esto solo trae datos de la org del admin autenticado
   const { data: properties } = await supabase
     .from("properties")
     .select("*, tenants(name, rent_amount)")
@@ -62,19 +61,42 @@ export default async function AdminPage({ params }: { params: Promise<{ org: str
           <div
             key={p.id}
             style={{
-              display: "flex",
-              justifyContent: "space-between",
               padding: "13px 16px",
               borderTop: i === 0 ? "none" : "1px solid #E4DFD3",
             }}
           >
-            <div>
-              <div style={{ fontWeight: 600, color: "var(--org-ink)" }}>
-                {p.address} {p.unit ? `· ${p.unit}` : ""}
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+              <div>
+                <div style={{ fontWeight: 600, color: "var(--org-ink)" }}>
+                  {p.address} {p.unit ? `· ${p.unit}` : ""}
+                </div>
+                <div style={{ fontSize: 12, color: "#5B6259" }}>{p.tenants?.[0]?.name ?? "Vacante"}</div>
               </div>
-              <div style={{ fontSize: 12, color: "#5B6259" }}>{p.tenants?.[0]?.name ?? "Vacante"}</div>
+              <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                <div>{p.tenants?.[0]?.rent_amount ? money(p.tenants[0].rent_amount) : "—"}</div>
+                <details>
+                  <summary style={{ cursor: "pointer", fontSize: 16, color: "#5B6259", listStyle: "none" }}>⋯</summary>
+                  <div style={{ marginTop: 10, display: "flex", flexDirection: "column", gap: 8, minWidth: 200 }}>
+                    <form action={updateProperty} style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                      <input type="hidden" name="subdomain" value={subdomain} />
+                      <input type="hidden" name="id" value={p.id} />
+                      <input name="address" defaultValue={p.address} style={{ width: "100%", boxSizing: "border-box", padding: "6px 8px", border: "1px solid #E4DFD3", borderRadius: 6, fontSize: 12 }} />
+                      <input name="unit" defaultValue={p.unit ?? ""} placeholder="Unidad" style={{ width: "100%", boxSizing: "border-box", padding: "6px 8px", border: "1px solid #E4DFD3", borderRadius: 6, fontSize: 12 }} />
+                      <button type="submit" style={{ background: "#1F2421", color: "#fff", border: "none", borderRadius: 6, padding: "6px 10px", fontSize: 12, cursor: "pointer" }}>
+                        Guardar cambios
+                      </button>
+                    </form>
+                    <form action={deleteProperty}>
+                      <input type="hidden" name="subdomain" value={subdomain} />
+                      <input type="hidden" name="id" value={p.id} />
+                      <button type="submit" style={{ width: "100%", background: "#fff", color: "#C23B22", border: "1px solid #C23B22", borderRadius: 6, padding: "6px 10px", fontSize: 12, cursor: "pointer" }}>
+                        Eliminar propiedad
+                      </button>
+                    </form>
+                  </div>
+                </details>
+              </div>
             </div>
-            <div>{p.tenants?.[0]?.rent_amount ? money(p.tenants[0].rent_amount) : "—"}</div>
           </div>
         ))}
       </div>
@@ -118,19 +140,42 @@ export default async function AdminPage({ params }: { params: Promise<{ org: str
           <div
             key={c.id}
             style={{
-              display: "flex",
-              justifyContent: "space-between",
               padding: "13px 16px",
               borderTop: i === 0 ? "none" : "1px solid #E4DFD3",
             }}
           >
-            <div>
-              <div style={{ fontWeight: 600, color: "var(--org-ink)" }}>{c.concept}</div>
-              <div style={{ fontSize: 12, color: "#5B6259" }}>{c.tenants?.name}</div>
-            </div>
-            <div style={{ textAlign: "right" }}>
-              <div>{money(Number(c.amount))}</div>
-              <div style={{ fontSize: 11, color: "#5B6259" }}>{c.status}</div>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+              <div>
+                <div style={{ fontWeight: 600, color: "var(--org-ink)" }}>{c.concept}</div>
+                <div style={{ fontSize: 12, color: "#5B6259" }}>{c.tenants?.name}</div>
+              </div>
+              <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                <div style={{ textAlign: "right" }}>
+                  <div>{money(Number(c.amount))}</div>
+                  <div style={{ fontSize: 11, color: "#5B6259" }}>{c.status}</div>
+                </div>
+                <details>
+                  <summary style={{ cursor: "pointer", fontSize: 16, color: "#5B6259", listStyle: "none" }}>⋯</summary>
+                  <div style={{ marginTop: 10, display: "flex", flexDirection: "column", gap: 8, minWidth: 200 }}>
+                    <form action={updateCharge} style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                      <input type="hidden" name="subdomain" value={subdomain} />
+                      <input type="hidden" name="id" value={c.id} />
+                      <input name="concept" defaultValue={c.concept} style={{ width: "100%", boxSizing: "border-box", padding: "6px 8px", border: "1px solid #E4DFD3", borderRadius: 6, fontSize: 12 }} />
+                      <input name="amount" type="number" step="0.01" defaultValue={c.amount} style={{ width: "100%", boxSizing: "border-box", padding: "6px 8px", border: "1px solid #E4DFD3", borderRadius: 6, fontSize: 12 }} />
+                      <button type="submit" style={{ background: "#1F2421", color: "#fff", border: "none", borderRadius: 6, padding: "6px 10px", fontSize: 12, cursor: "pointer" }}>
+                        Guardar cambios
+                      </button>
+                    </form>
+                    <form action={deleteCharge}>
+                      <input type="hidden" name="subdomain" value={subdomain} />
+                      <input type="hidden" name="id" value={c.id} />
+                      <button type="submit" style={{ width: "100%", background: "#fff", color: "#C23B22", border: "1px solid #C23B22", borderRadius: 6, padding: "6px 10px", fontSize: 12, cursor: "pointer" }}>
+                        Eliminar cargo
+                      </button>
+                    </form>
+                  </div>
+                </details>
+              </div>
             </div>
           </div>
         ))}
