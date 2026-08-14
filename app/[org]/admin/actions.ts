@@ -30,6 +30,31 @@ export async function addProperty(formData: FormData) {
   revalidatePath(`/${subdomain}/admin`);
 }
 
+export async function updateProperty(formData: FormData) {
+  const subdomain = formData.get("subdomain") as string;
+  const id = formData.get("id") as string;
+  const address = formData.get("address") as string;
+  const unit = formData.get("unit") as string;
+
+  const supabase = await supabaseServer();
+  await supabase
+    .from("properties")
+    .update({ address, unit: unit || null })
+    .eq("id", id);
+
+  revalidatePath(`/${subdomain}/admin`);
+}
+
+export async function deleteProperty(formData: FormData) {
+  const subdomain = formData.get("subdomain") as string;
+  const id = formData.get("id") as string;
+
+  const supabase = await supabaseServer();
+  await supabase.from("properties").delete().eq("id", id);
+
+  revalidatePath(`/${subdomain}/admin`);
+}
+
 export async function addCharge(formData: FormData) {
   const subdomain = formData.get("subdomain") as string;
   const concept = formData.get("concept") as string;
@@ -45,6 +70,31 @@ export async function addCharge(formData: FormData) {
     amount,
     status: "pendiente",
   });
+
+  revalidatePath(`/${subdomain}/admin`);
+}
+
+export async function updateCharge(formData: FormData) {
+  const subdomain = formData.get("subdomain") as string;
+  const id = formData.get("id") as string;
+  const concept = formData.get("concept") as string;
+  const amount = Number(formData.get("amount"));
+
+  const supabase = await supabaseServer();
+  await supabase
+    .from("charges")
+    .update({ concept, amount })
+    .eq("id", id);
+
+  revalidatePath(`/${subdomain}/admin`);
+}
+
+export async function deleteCharge(formData: FormData) {
+  const subdomain = formData.get("subdomain") as string;
+  const id = formData.get("id") as string;
+
+  const supabase = await supabaseServer();
+  await supabase.from("charges").delete().eq("id", id);
 
   revalidatePath(`/${subdomain}/admin`);
 }
