@@ -106,7 +106,7 @@ export default async function AdminPage({ params }: { params: Promise<{ org: str
         />
         <button
           type="submit"
-          style={{ width: "100%", background: "var(--org-ink)", color: "#fff", border: "none", borderRadius: 6, padding: "10px 14px", fontSize: 13, fontWeight: 700, cursor: "pointer" }}
+          style={{ width: "100%", background: "#1F2421", color: "#fff", border: "none", borderRadius: 6, padding: "10px 14px", fontSize: 13, fontWeight: 700, cursor: "pointer" }}
         >
           Agregar propiedad
         </button>
@@ -168,7 +168,7 @@ export default async function AdminPage({ params }: { params: Promise<{ org: str
         />
         <button
           type="submit"
-          style={{ width: "100%", background: "var(--org-ink)", color: "#fff", border: "none", borderRadius: 6, padding: "10px 14px", fontSize: 13, fontWeight: 700, cursor: "pointer" }}
+          style={{ width: "100%", background: "#1F2421", color: "#fff", border: "none", borderRadius: 6, padding: "10px 14px", fontSize: 13, fontWeight: 700, cursor: "pointer" }}
         >
           Agregar cargo
         </button>
