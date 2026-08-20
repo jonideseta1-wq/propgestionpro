@@ -1,5 +1,5 @@
 import { supabaseServer } from "@/lib/supabaseServer";
-import { getOrgBySubdomain } from "@/lib/getOrg";
+import { getOrgBySubdomain, themeVars } from "@/lib/getOrg";
 import { redirect } from "next/navigation";
 import {
   logout,
@@ -99,7 +99,7 @@ export default async function AdminPage({ params }: { params: Promise<{ org: str
   };
 
   return (
-    <div style={{ maxWidth: 680, margin: "0 auto", paddingTop: 4 }}>
+    <div style={{ maxWidth: 680, margin: "0 auto", paddingTop: 4, ...themeVars(org) }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginBottom: 22, flexWrap: "wrap", gap: 10 }}>
         <div>
           <div style={{ fontFamily: "var(--org-font)", fontSize: 22, color: "var(--org-ink)", fontWeight: isLedger ? 400 : 800 }}>

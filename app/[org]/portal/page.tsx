@@ -1,12 +1,20 @@
-import { supabaseServer } from "@/lib/supabase";
-import { getOrgBySubdomain } from "@/lib/getOrg";
+import { supabaseServer } from "@/lib/supabaseServer";
+import { getOrgBySubdomain, themeVars } from "@/lib/getOrg";
+import { createCheckout } from "./actions";
 
 function money(n: number) {
   return n.toLocaleString("es-AR", { style: "currency", currency: "ARS", maximumFractionDigits: 0 });
 }
 
-export default async function PortalPage({ params }: { params: Promise<{ org: string }> }) {
+export default async function PortalPage({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ org: string }>;
+  searchParams: Promise<{ mp_error?: string }>;
+}) {
   const { org: subdomain } = await params;
+  const { mp_error } = await searchParams;
   const org = await getOrgBySubdomain(subdomain);
   const supabase = await supabaseServer();
 
@@ -35,10 +43,13 @@ export default async function PortalPage({ params }: { params: Promise<{ org: st
     .eq("tenant_id", tenant.id)
     .order("due_date", { ascending: true });
 
-  const total = (charges ?? []).reduce((sum, c) => sum + Number(c.amount), 0);
+  const chargeList = charges ?? [];
+  const pendingTotal = chargeList
+    .filter((c) => c.status === "pendiente")
+    .reduce((sum, c) => sum + Number(c.amount), 0);
 
   return (
-    <div style={{ maxWidth: 420, margin: "0 auto" }}>
+    <div style={{ maxWidth: 420, margin: "0 auto", ...(org ? themeVars(org) : {}) }}>
       <div
         style={{
           background: "#fff",
@@ -49,10 +60,10 @@ export default async function PortalPage({ params }: { params: Promise<{ org: st
       >
         <div style={{ fontSize: 12, color: "#5B6259", marginBottom: 6 }}>Resumen del mes</div>
         <div style={{ fontFamily: "var(--org-font)", fontSize: 28, color: "var(--org-ink)", marginBottom: 14 }}>
-          {money(total)}
+          {money(pendingTotal)}
         </div>
         <div style={{ borderTop: "1px solid #E4DFD3", paddingTop: 12 }}>
-          {(charges ?? []).map((c) => (
+          {chargeList.map((c) => (
             <div key={c.id} style={{ display: "flex", justifyContent: "space-between", padding: "5px 0", fontSize: 13.5 }}>
               <span style={{ color: "#5B6259" }}>{c.concept}</span>
               <span style={{ color: "var(--org-ink)", fontWeight: 600 }}>{money(Number(c.amount))}</span>
@@ -62,21 +73,36 @@ export default async function PortalPage({ params }: { params: Promise<{ org: st
         <div style={{ fontSize: 12, color: "#5B6259", marginTop: 14 }}>
           {tenant.properties?.address} · {tenant.properties?.unit}
         </div>
-        <button
-          style={{
-            marginTop: 16,
-            width: "100%",
-            padding: "12px",
-            border: "none",
-            borderRadius: "var(--org-radius)",
-            background: "var(--org-accent)",
-            color: "#fff",
-            fontWeight: 700,
-            cursor: "pointer",
-          }}
-        >
-          Pagar con Mercado Pago
-        </button>
+        {mp_error === "not_configured" && (
+          <div style={{ marginTop: 14, fontSize: 12.5, color: "#C23B22" }}>
+            Los pagos online todavía no están configurados. Contactá a la administración.
+          </div>
+        )}
+        {pendingTotal > 0 ? (
+          <form action={createCheckout}>
+            <input type="hidden" name="subdomain" value={subdomain} />
+            <button
+              type="submit"
+              style={{
+                marginTop: 16,
+                width: "100%",
+                padding: "12px",
+                border: "none",
+                borderRadius: "var(--org-radius)",
+                background: "var(--org-accent)",
+                color: "#fff",
+                fontWeight: 700,
+                cursor: "pointer",
+              }}
+            >
+              Pagar con Mercado Pago
+            </button>
+          </form>
+        ) : (
+          <div style={{ marginTop: 16, textAlign: "center", fontSize: 13, color: "#5B6259" }}>
+            No tenés cargos pendientes.
+          </div>
+        )}
       </div>
     </div>
   );
