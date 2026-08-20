@@ -1,7 +1,18 @@
 import { supabaseServer } from "@/lib/supabaseServer";
 import { getOrgBySubdomain } from "@/lib/getOrg";
 import { redirect } from "next/navigation";
-import { logout, addProperty, updateProperty, deleteProperty, addCharge, updateCharge, deleteCharge } from "./actions";
+import {
+  logout,
+  addProperty,
+  updateProperty,
+  deleteProperty,
+  addTenant,
+  updateTenant,
+  deleteTenant,
+  addCharge,
+  updateCharge,
+  deleteCharge,
+} from "./actions";
 
 function money(n: number) {
   return n.toLocaleString("es-AR", { style: "currency", currency: "ARS", maximumFractionDigits: 0 });
@@ -28,6 +39,11 @@ export default async function AdminPage({ params }: { params: Promise<{ org: str
     .select("*, tenants(name, rent_amount)")
     .eq("organization_id", org.id);
 
+  const { data: tenants } = await supabase
+    .from("tenants")
+    .select("*, properties(address, unit)")
+    .eq("organization_id", org.id);
+
   const { data: charges } = await supabase
     .from("charges")
     .select("*, tenants(name)")
@@ -35,6 +51,7 @@ export default async function AdminPage({ params }: { params: Promise<{ org: str
     .order("due_date", { ascending: true });
 
   const propList = properties ?? [];
+  const tenantList = tenants ?? [];
   const chargeList = charges ?? [];
   const occupied = propList.filter((p) => p.tenants && p.tenants.length > 0).length;
   const pendingCount = chargeList.filter((c) => c.status === "pendiente").length;
@@ -196,6 +213,93 @@ export default async function AdminPage({ params }: { params: Promise<{ org: str
         <input name="unit" placeholder="Unidad (opcional)" style={inputStyle} />
         <button type="submit" style={primaryBtnStyle}>
           Agregar propiedad
+        </button>
+      </form>
+
+      {/* Inquilinos */}
+      <h2 style={sectionTitleStyle}>Inquilinos</h2>
+      <div style={{ ...panelStyle, marginBottom: 16 }}>
+        {tenantList.length === 0 && (
+          <div style={{ padding: "24px 16px", textAlign: "center", color: "#5B6259", fontSize: 13 }}>
+            Todavía no cargaste ningún inquilino.
+          </div>
+        )}
+        {tenantList.map((t, i) => (
+          <div
+            key={t.id}
+            style={{
+              padding: "15px 18px",
+              borderTop: i === 0 ? "none" : "1px solid #EFEBE2",
+            }}
+          >
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+              <div>
+                <div style={{ fontWeight: 600, color: "var(--org-ink)", fontSize: 14 }}>{t.name}</div>
+                <div style={{ fontSize: 12, color: "#5B6259", marginTop: 2 }}>
+                  {t.properties ? `${t.properties.address}${t.properties.unit ? ` · ${t.properties.unit}` : ""}` : "Sin propiedad asignada"}
+                  {t.email || t.phone ? ` · ${[t.email, t.phone].filter(Boolean).join(" · ")}` : ""}
+                </div>
+              </div>
+              <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                <div style={{ fontSize: 13, color: "var(--org-ink)" }}>{t.rent_amount ? money(Number(t.rent_amount)) : "—"}</div>
+                <details>
+                  <summary style={{ cursor: "pointer", fontSize: 18, color: "#B5AEA0", listStyle: "none" }}>⋯</summary>
+                  <div style={{ marginTop: 10, display: "flex", flexDirection: "column", gap: 6, minWidth: 210 }}>
+                    <form action={updateTenant} style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                      <input type="hidden" name="subdomain" value={subdomain} />
+                      <input type="hidden" name="id" value={t.id} />
+                      <input name="name" defaultValue={t.name} placeholder="Nombre" style={{ ...inputStyle, padding: "7px 9px", fontSize: 12 }} />
+                      <input name="email" type="email" defaultValue={t.email ?? ""} placeholder="Email" style={{ ...inputStyle, padding: "7px 9px", fontSize: 12 }} />
+                      <input name="phone" defaultValue={t.phone ?? ""} placeholder="Teléfono" style={{ ...inputStyle, padding: "7px 9px", fontSize: 12 }} />
+                      <input name="rent_amount" type="number" step="0.01" min="0" defaultValue={t.rent_amount ?? 0} placeholder="Alquiler" style={{ ...inputStyle, padding: "7px 9px", fontSize: 12 }} />
+                      <select name="property_id" defaultValue={t.property_id ?? ""} style={{ ...inputStyle, padding: "7px 9px", fontSize: 12 }}>
+                        <option value="">Sin propiedad asignada</option>
+                        {propList.map((p) => (
+                          <option key={p.id} value={p.id}>
+                            {p.address}
+                            {p.unit ? ` · ${p.unit}` : ""}
+                          </option>
+                        ))}
+                      </select>
+                      <button type="submit" style={{ ...primaryBtnStyle, padding: "7px 10px", fontSize: 12 }}>
+                        Guardar cambios
+                      </button>
+                    </form>
+                    <form action={deleteTenant}>
+                      <input type="hidden" name="subdomain" value={subdomain} />
+                      <input type="hidden" name="id" value={t.id} />
+                      <button
+                        type="submit"
+                        style={{ width: "100%", background: "#fff", color: "#C23B22", border: "1px solid #C23B22", borderRadius: isLedger ? 4 : 8, padding: "7px 10px", fontSize: 12, cursor: "pointer" }}
+                      >
+                        Eliminar inquilino
+                      </button>
+                    </form>
+                  </div>
+                </details>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <form action={addTenant} style={{ ...panelStyle, display: "flex", flexDirection: "column", gap: 8, padding: 14, marginBottom: 30 }}>
+        <input type="hidden" name="subdomain" value={subdomain} />
+        <input name="name" placeholder="Nombre del inquilino" required style={inputStyle} />
+        <input name="email" type="email" placeholder="Email (opcional)" style={inputStyle} />
+        <input name="phone" placeholder="Teléfono (opcional)" style={inputStyle} />
+        <input name="rent_amount" type="number" inputMode="decimal" step="0.01" min="0" placeholder="Alquiler mensual (ej. 150000)" style={inputStyle} />
+        <select name="property_id" defaultValue="" style={inputStyle}>
+          <option value="">Sin propiedad asignada</option>
+          {propList.map((p) => (
+            <option key={p.id} value={p.id}>
+              {p.address}
+              {p.unit ? ` · ${p.unit}` : ""}
+            </option>
+          ))}
+        </select>
+        <button type="submit" style={primaryBtnStyle}>
+          Agregar inquilino
         </button>
       </form>
 

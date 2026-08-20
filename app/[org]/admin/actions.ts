@@ -55,6 +55,58 @@ export async function deleteProperty(formData: FormData) {
   revalidatePath(`/${subdomain}/admin`);
 }
 
+export async function addTenant(formData: FormData) {
+  const subdomain = formData.get("subdomain") as string;
+  const name = formData.get("name") as string;
+  const email = formData.get("email") as string;
+  const phone = formData.get("phone") as string;
+  const rent_amount = Number(formData.get("rent_amount")) || 0;
+  const property_id = (formData.get("property_id") as string) || null;
+
+  const org = await getOrgBySubdomain(subdomain);
+  if (!org) return;
+
+  const supabase = await supabaseServer();
+  await supabase.from("tenants").insert({
+    organization_id: org.id,
+    property_id,
+    name,
+    email: email || null,
+    phone: phone || null,
+    rent_amount,
+  });
+
+  revalidatePath(`/${subdomain}/admin`);
+}
+
+export async function updateTenant(formData: FormData) {
+  const subdomain = formData.get("subdomain") as string;
+  const id = formData.get("id") as string;
+  const name = formData.get("name") as string;
+  const email = formData.get("email") as string;
+  const phone = formData.get("phone") as string;
+  const rent_amount = Number(formData.get("rent_amount")) || 0;
+  const property_id = (formData.get("property_id") as string) || null;
+
+  const supabase = await supabaseServer();
+  await supabase
+    .from("tenants")
+    .update({ name, email: email || null, phone: phone || null, rent_amount, property_id })
+    .eq("id", id);
+
+  revalidatePath(`/${subdomain}/admin`);
+}
+
+export async function deleteTenant(formData: FormData) {
+  const subdomain = formData.get("subdomain") as string;
+  const id = formData.get("id") as string;
+
+  const supabase = await supabaseServer();
+  await supabase.from("tenants").delete().eq("id", id);
+
+  revalidatePath(`/${subdomain}/admin`);
+}
+
 export async function addCharge(formData: FormData) {
   const subdomain = formData.get("subdomain") as string;
   const concept = formData.get("concept") as string;
